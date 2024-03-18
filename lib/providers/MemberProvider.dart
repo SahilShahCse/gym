@@ -3,12 +3,62 @@ import 'package:flutter/material.dart';
 import '../models/MemberModel.dart';
 
 class MemberProvider extends ChangeNotifier {
+
   List<Member> _members = [];
 
   List<Member> get members => _members;
 
-  final CollectionReference _membersCollection =
-  FirebaseFirestore.instance.collection('members');
+  final CollectionReference _membersCollection = FirebaseFirestore.instance.collection('members');
+
+  Member? getMemberById(String id) {
+    for (Member data in _members) {
+      if (data.id == id) {
+        return data;
+      }
+    }
+    return null; // Return null if no member with the given id is found
+  }
+
+  List<Member> getMembersByTrainerId(String trainerId) {
+    print('called');
+    return _members.where((member) => member.trainerId == trainerId).toList();
+  }
+
+  Future<void> updateDiet(String memberId, List<Information> diet) async {
+    try {
+      await _membersCollection.doc(memberId).update({
+        'diet': diet.map((workout) => workout.toMap()).toList(),
+      });
+      // Optionally, you can update the local data as well
+      _members.forEach((member) {
+        if (member.id == memberId) {
+          member.diet = diet;
+        }
+      });
+      notifyListeners();
+    } catch (e) {
+      print('Error updating workouts: $e');
+      throw e;
+    }
+  }
+
+  Future<void> updateWorkout(String memberId, List<Information> workouts) async {
+    try {
+      await _membersCollection.doc(memberId).update({
+        'workout': workouts.map((workout) => workout.toMap()).toList(),
+      });
+      // Optionally, you can update the local data as well
+      _members.forEach((member) {
+        if (member.id == memberId) {
+          member.workout = workouts; // Assuming you have a field named workouts in your Member model
+        }
+      });
+      notifyListeners();
+    } catch (e) {
+      print('Error updating workouts: $e');
+      throw e;
+    }
+  }
 
   Future<void> addMember(Member member) async {
     try {
@@ -51,14 +101,35 @@ class MemberProvider extends ChangeNotifier {
           .toList();
 
       // Update the local _members list with the fetched members
+      _members.clear();
       _members.addAll(members);
 
       // Notify listeners of the change
       notifyListeners();
+
+      // Listen to real-time updates
+      _membersCollection
+          .where('gymCode', isEqualTo: gymCode)
+          .snapshots()
+          .listen((snapshot) {
+        // Convert the query snapshot to a list of Member objects
+        List<Member> updatedMembers = snapshot.docs
+            .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
+
+        // Update the local _members list with the updated members
+        _members.clear();
+        _members.addAll(updatedMembers);
+
+        // Notify listeners of the change
+        notifyListeners();
+      });
     } catch (e) {
       print('Error fetching members: $e');
       throw e;
     }
+
+    print('data from firebase : ${_members.first.workout}');
   }
 
   // Method to update member profile

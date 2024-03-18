@@ -9,7 +9,7 @@ class OwnerProvider extends ChangeNotifier {
     fullName: 'John Doe',
     email: 'john@example.com',
     password: 'password1',
-    gymCode: 'Gym1',
+    gymCode: 'Gym3',
     gymName: 'Fitness First',
     gymLocation: '123 Main Street',
   );
