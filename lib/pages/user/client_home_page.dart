@@ -34,6 +34,12 @@ class _ClientHomePageState extends State<ClientHomePage> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onNavItemPressed: _onNavItemPressed,
+        customIcons: [
+          Icons.dashboard_outlined,
+          Icons.sports_gymnastics,
+          Icons.import_export_sharp,
+          Icons.person,
+        ],
       ),
     );
   }

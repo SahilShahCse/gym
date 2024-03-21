@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:gym/models/MemberModel.dart';
+import 'package:gym/pages/trainer/Dashboard.dart';
+import 'package:gym/pages/trainer/PaymentInfoScreen.dart';
+import 'package:gym/pages/trainer/PersonalTrainingDetailScreen.dart';
+import 'package:gym/providers/MemberProvider.dart';
+import 'package:gym/providers/TrainerProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../widgets/custom_bottom_navigationbar.dart';
+import 'ProfileScreenForTrainer.dart';
 
 class TrainerHomePage extends StatefulWidget {
   @override
@@ -16,6 +24,8 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
   }
+  
+
 
   @override
   void dispose() {
@@ -32,6 +42,12 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onNavItemPressed: _onNavItemPressed,
+        customIcons: [
+          Icons.dashboard_outlined,
+          Icons.sports_gymnastics,
+          Icons.import_export_sharp,
+          Icons.person,
+        ],
       ),
     );
   }
@@ -46,6 +62,10 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
               controller: _pageController,
               onPageChanged: _onPageChanged,
               children: <Widget>[
+                TrainerDashboard(),
+                PersonalTrainingDetailScreen(),
+                PaymentInfoScreen(),
+                ProfileScreenForTrainer(),
               ],
             ),
           ),

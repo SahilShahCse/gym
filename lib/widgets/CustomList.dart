@@ -6,7 +6,7 @@ class CustomList extends StatefulWidget {
 
   final List title;
   final List subtitle;
-  final List? onTap;
+  final List onTap;
 
   const CustomList(
       {super.key,
@@ -36,6 +36,7 @@ class _CustomListState extends State<CustomList> {
               child: CustomListTile(
                 title: widget.title[firstIndex],
                 subtitle: widget.subtitle[firstIndex],
+                onTap: widget.onTap.isEmpty ? null : widget.onTap[firstIndex],
               ),
             ),
             if (secondIndex < widget.title.length) // Ensure second tile exists
@@ -45,6 +46,8 @@ class _CustomListState extends State<CustomList> {
                 child: CustomListTile(
                   title: widget.title[secondIndex],
                   subtitle: widget.subtitle[secondIndex],
+                  onTap: widget.onTap.isEmpty  ? null : widget.onTap[secondIndex],
+
                 ),
               ),
           ],

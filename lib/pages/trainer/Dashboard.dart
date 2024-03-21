@@ -12,14 +12,14 @@ import '../../models/TrainerModel.dart';
 import '../../widgets/CustomMemberList.dart';
 import '../../widgets/CustomTrainerList.dart';
 
-class OwnerDashboard extends StatefulWidget {
-  const OwnerDashboard({Key? key}) : super(key: key);
+class TrainerDashboard extends StatefulWidget {
+  const TrainerDashboard({Key? key}) : super(key: key);
 
   @override
-  State<OwnerDashboard> createState() => _OwnerDashboardState();
+  State<TrainerDashboard> createState() => _TrainerDashboardState();
 }
 
-class _OwnerDashboardState extends State<OwnerDashboard> {
+class _TrainerDashboardState extends State<TrainerDashboard> {
   @override
   void initState() {
     setData();
@@ -30,7 +30,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
 
   Future<void> setData() async {
     String gymCode =
-        Provider.of<OwnerProvider>(context, listen: false).owner.gymCode!;
+    Provider.of<OwnerProvider>(context, listen: false).owner.gymCode!;
 
     Provider.of<MemberProvider>(context, listen: false)
         .fetchMembersByGymCode(gymCode);
@@ -43,7 +43,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
 
     final memberProvider = Provider.of<MemberProvider>(context, listen: false);
     final trainerProvider =
-        Provider.of<TrainerProvider>(context, listen: false);
+    Provider.of<TrainerProvider>(context, listen: false);
 
     switch (selected) {
       case 'totalMembers':
@@ -51,8 +51,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       case 'expiredMember':
         return memberProvider.members
             .where((member) =>
-                member.membershipExpiryDate != null &&
-                member.membershipExpiryDate!.isBefore(DateTime.now()))
+        member.membershipExpiryDate != null &&
+            member.membershipExpiryDate!.isBefore(DateTime.now()))
             .toList();
       case 'noDiet':
         return memberProvider.members
@@ -66,23 +66,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       case 'expiringIn5Days':
         return memberProvider.members
             .where((member) =>
-                member.membershipExpiryDate != null &&
-                member.membershipExpiryDate!
-                    .isBefore(DateTime.now().add(Duration(days: 5))))
-            .toList();
-      case 'totalTrainers':
-        return trainerProvider.trainers;
-      case 'inGym':
-        return trainerProvider.trainers
-            .where((trainer) => trainer.isInGym ?? false)
-            .toList();
-      case 'numberViewPermission':
-        return trainerProvider.trainers
-            .where((trainer) => trainer.canSeeMobileNumbers ?? false)
-            .toList();
-      case 'paymentPermission':
-        return trainerProvider.trainers
-            .where((trainer) => trainer.canUpdatePaymentStatus ?? false)
+        member.membershipExpiryDate != null &&
+            member.membershipExpiryDate!
+                .isBefore(DateTime.now().add(Duration(days: 5))))
             .toList();
       default:
         return [];
@@ -103,6 +89,36 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Column(
             children: [
+              // trainer details
+              Consumer<TrainerProvider>(
+                builder: (context, trainerProvider, _) {
+                  Trainer trainer = trainerProvider.trainer;
+                  return CustomList(
+                    title: const [
+                      'Name',
+                      'Gym Code',
+                      'Contact Number',
+                      'Email',
+                      'Address',
+                    ],
+                    subtitle: [
+                      trainer.name,
+                      trainer.gymCode,
+                      trainer.phoneNumber,
+                      trainer.emailId ?? 'Not Given',
+                      trainer.address ?? 'Not Given',
+                    ],
+                    onTap: [],
+                  );
+                },
+              ),
+              SizedBox(height: 16),
+              Container(
+                height: 0.5,
+                width: double.maxFinite,
+                color: Colors.grey,
+              ),
+              SizedBox(height: 16),
               Consumer<MemberProvider>(
                 builder: (context, memberProvider, _) {
                   List<Member> members = memberProvider.members;
@@ -113,7 +129,6 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       'No Diet',
                       'No Workout',
                       'Expiring(5 days)',
-                      'Total Income',
                     ],
                     subtitle: [
                       '${members.length}',
@@ -121,43 +136,36 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       '${members.where((member) => member.diet == null || member.diet!.isEmpty).length}',
                       '${members.where((member) => member.workout == null || member.workout!.isEmpty).length}',
                       '${members.where((member) => member.membershipExpiryDate != null && member.membershipExpiryDate!.isBefore(DateTime.now().add(Duration(days: 5)))).length}',
-                      '90,000', // Add logic to calculate total income
                     ],
                     onTap: [
-                      () {
+                          () {
                         _selected = 'totalMembers';
                         setState(
-                          () {},
+                              () {},
                         );
                       },
-                      () {
+                          () {
                         _selected = 'expiredMember';
                         setState(
-                          () {},
+                              () {},
                         );
                       },
-                      () {
+                          () {
                         _selected = 'noDiet';
                         setState(
-                          () {},
+                              () {},
                         );
                       },
-                      () {
+                          () {
                         _selected = 'noWorkout';
                         setState(
-                          () {},
+                              () {},
                         );
                       },
-                      () {
+                          () {
                         _selected = 'expiringIn5Days';
                         setState(
-                          () {},
-                        );
-                      },
-                      () {
-                        _selected = 'totalIncome';
-                        setState(
-                          () {},
+                              () {},
                         );
                       },
                     ], // Define onTap callback if needed
@@ -171,53 +179,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                 color: Colors.grey,
               ),
               SizedBox(height: 16),
-              Consumer<TrainerProvider>(
-                builder: (context, trainerProvider, _) {
-                  List<Trainer> trainers = trainerProvider.trainers;
-                  return CustomList(
-                    title: const [
-                      'Total Trainers',
-                      'In Gym',
-                      'Contact view Permission',
-                      'Payment Permission',
-                    ],
-                    subtitle: [
-                      '${trainers.length}', // Assuming you have access to the list of trainers
-                      '${trainers.where((trainer) => trainer.isInGym ?? false).length}', // Assuming Trainer model has 'inGym' property
-                      '${trainers.where((trainer) => trainer.canSeeMobileNumbers ?? false).length}', // Assuming Trainer model has 'numberViewPermission' property
-                      '${trainers.where((trainer) => trainer.canUpdatePaymentStatus ?? false).length}', // Assuming Trainer model has 'paymentPermission' property
-                    ],
-                    onTap: [
-                      () {
-                        _selected = 'totalTrainers';
-                        setState(() {});
-                      },
-                      () {
-                        _selected = 'inGym';
-                        setState(() {});
-                      },
-                      () {
-                        _selected = 'numberViewPermission';
-                        setState(() {});
-                      },
-                      () {
-                        _selected = 'paymentPermission';
-                        setState(() {});
-                      },
-                    ], // Define onTap callback if needed
-                  );
-                },
-              ),
-              SizedBox(height: 16),
-              Container(
-                height: 0.5,
-                width: double.maxFinite,
-                color: Colors.grey,
-              ),
-              SizedBox(height: 16),
-              (data.isNotEmpty && data[0] is Member)
+              (data.isNotEmpty)
                   ? CustomMemberList(members: data.cast<Member>())
-                  :(data.isNotEmpty)? CustomTrainersList(trainers: data.cast<Trainer>()) : SizedBox(),
+                  : SizedBox(),
             ],
           ),
         ),

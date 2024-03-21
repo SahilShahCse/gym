@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onNavItemPressed;
+  final List<IconData> customIcons; // List of custom icons
 
   const CustomBottomNavBar({
     required this.currentIndex,
     required this.onNavItemPressed,
+    required this.customIcons,
   });
 
   @override
   Widget build(BuildContext context) {
+    assert(customIcons.length == 4, 'Custom icons list should have exactly 4 icons.');
+
     return SafeArea(
       top: false,
       child: Container(
@@ -18,10 +22,8 @@ class CustomBottomNavBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            _buildBottomNavItem(Icons.people, 0),
-            _buildBottomNavItem(Icons.fitness_center, 1),
-            _buildBottomNavItem(Icons.brunch_dining, 2),
-            _buildBottomNavItem(Icons.payment, 3),
+            for (int index = 0; index < 4; index++)
+              _buildBottomNavItem(customIcons[index], index),
           ],
         ),
       ),

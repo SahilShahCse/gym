@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gym/pages/owner/Dashboard.dart';
+import 'package:gym/pages/owner/MembersListScreen.dart';
+import 'package:gym/pages/owner/ProfileScreen.dart';
+import 'package:gym/pages/owner/TrainersListScreen.dart';
 
 import '../../widgets/custom_bottom_navigationbar.dart';
 
@@ -31,6 +34,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onNavItemPressed: _onNavItemPressed,
+        customIcons: [
+          Icons.dashboard_outlined,
+          Icons.people_alt_outlined,
+          Icons.fitness_center_outlined,
+          Icons.person
+        ],
       ),
     );
   }
@@ -45,6 +54,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
               onPageChanged: _onPageChanged,
               children: <Widget>[
                 OwnerDashboard(),
+                MembersListScreen(),
+                TrainersListScreen(),
+                ProfileScreen(),
               ],
             ),
           ),

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gym/models/TrainerModel.dart';
 import '../models/MemberModel.dart';
 import '../models/OwnerModel.dart';
@@ -12,8 +14,11 @@ class OwnerProvider extends ChangeNotifier {
   final CollectionReference _ownersCollection =
   FirebaseFirestore.instance.collection('owners');
 
-  Future<void> setOwner(Owner owner) async {
+
+
+  void setOwner(Owner owner) async {
       _owner = owner;
+
       notifyListeners();
   }
 

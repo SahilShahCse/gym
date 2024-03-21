@@ -66,21 +66,41 @@ class TrainerProvider extends ChangeNotifier {
     }
   }
 
-  void updateTrainerMobileNumberPermission(String trainerId, bool canSeeMobileNumbers) {
+  Future<void> updateTrainerMobileNumberPermission(String trainerId, bool canSeeMobileNumbers) async {
     final trainerIndex = _trainers.indexWhere((trainer) => trainer.id == trainerId);
     if (trainerIndex != -1) {
       _trainers[trainerIndex].canSeeMobileNumbers = canSeeMobileNumbers;
       notifyListeners();
+
+      // Update the data on Firebase Firestore
+     await  _trainersCollection.doc(trainerId).set({
+        'canSeeMobileNumbers': canSeeMobileNumbers,
+      }, SetOptions(merge: true)).then((_) {
+        print('Trainer mobile number permission updated on Firestore');
+      }).catchError((error) {
+        print('Failed to update trainer mobile number permission: $error');
+      });
     }
   }
 
-  void updateTrainerPaymentStatusPermission(String trainerId, bool canUpdatePaymentStatus) {
+  Future<void> updateTrainerPaymentStatusPermission(String trainerId, bool canUpdatePaymentStatus) async {
     final trainerIndex = _trainers.indexWhere((trainer) => trainer.id == trainerId);
     if (trainerIndex != -1) {
       _trainers[trainerIndex].canUpdatePaymentStatus = canUpdatePaymentStatus;
+
       notifyListeners();
+
+      // Update the data on Firebase Firestore
+      await _trainersCollection.doc(trainerId).set({
+        'canUpdatePaymentStatus': canUpdatePaymentStatus,
+      }, SetOptions(merge: true)).then((_) {
+        print('Trainer payment status permission updated on Firestore');
+      }).catchError((error) {
+        print('Failed to update trainer payment status permission: $error');
+      });
     }
   }
+
 
   Future<void> toggleGymAttendance(String trainerId, bool isInGym) async {
     try {
