@@ -3,7 +3,7 @@ import 'dart:convert';
 class Trainer {
   String? id;
   String? name;
-  String? contact;
+  String? phoneNumber;
   String? emailId;
   String? address;
   int? salary;
@@ -12,11 +12,16 @@ class Trainer {
   String? gymCode;
   bool? isInGym; // New field for gym attendance status
   List<AttendanceLog>? attendanceLogs; // New field for attendance logs
+  int? age; // New field for age
+  String? gender; // New field for gender
+  bool? canSeeMobileNumbers; // New field for permission to see mobile numbers
+  bool? canUpdatePaymentStatus; // New field for permission to update payment status
+  bool? isTrainer;
 
   Trainer({
     this.id,
     this.name,
-    this.contact,
+    this.phoneNumber,
     this.emailId,
     this.address,
     this.salary,
@@ -25,6 +30,11 @@ class Trainer {
     this.gymCode,
     this.isInGym,
     this.attendanceLogs,
+    this.age,
+    this.gender,
+    this.canSeeMobileNumbers,
+    this.canUpdatePaymentStatus,
+    this.isTrainer
   });
 
   // Method to convert Trainer object to a Map
@@ -32,7 +42,7 @@ class Trainer {
     return {
       'id': id,
       'name': name,
-      'contact': contact,
+      'phoneNumber': phoneNumber,
       'emailId': emailId,
       'address': address,
       'salary': salary,
@@ -41,6 +51,11 @@ class Trainer {
       'gymCode': gymCode,
       'isInGym': isInGym,
       'attendanceLogs': attendanceLogs?.map((log) => log.toMap()).toList(),
+      'age': age,
+      'gender': gender,
+      'canSeeMobileNumbers': canSeeMobileNumbers,
+      'canUpdatePaymentStatus': canUpdatePaymentStatus,
+      'isTrainer' : isTrainer,
     };
   }
 
@@ -49,7 +64,7 @@ class Trainer {
     return Trainer(
       id: map['id'],
       name: map['name'],
-      contact: map['contact'],
+      phoneNumber: map['phoneNumber'],
       emailId: map['emailId'],
       address: map['address'],
       salary: map['salary'],
@@ -60,6 +75,11 @@ class Trainer {
       attendanceLogs: map['attendanceLogs'] != null
           ? List<AttendanceLog>.from(map['attendanceLogs'].map((x) => AttendanceLog.fromMap(x)))
           : null,
+      age: map['age'],
+      gender: map['gender'],
+      canSeeMobileNumbers: map['canSeeMobileNumbers'],
+      canUpdatePaymentStatus: map['canUpdatePaymentStatus'],
+      isTrainer: map['isTrainer'],
     );
   }
 

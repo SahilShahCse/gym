@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../providers/TrainerProvider.dart';
 import '../../widgets/custom_bottom_navigationbar.dart';
 
-class TrainerHomePage extends StatefulWidget {
+class ClientHomePage extends StatefulWidget {
+  const ClientHomePage({super.key});
+
   @override
-  _TrainerHomePageState createState() => _TrainerHomePageState();
+  _ClientHomePageState createState() => _ClientHomePageState();
 }
 
-class _TrainerHomePageState extends State<TrainerHomePage> {
+class _ClientHomePageState extends State<ClientHomePage> {
   int _currentIndex = 0;
   late PageController _pageController;
 
@@ -26,7 +29,6 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: _buildBody(),
       bottomNavigationBar: CustomBottomNavBar(
@@ -35,7 +37,7 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
       ),
     );
   }
-  
+
 
   Widget _buildBody() {
     return SafeArea(
@@ -46,6 +48,7 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
               controller: _pageController,
               onPageChanged: _onPageChanged,
               children: <Widget>[
+
               ],
             ),
           ),

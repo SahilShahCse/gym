@@ -3,129 +3,104 @@ import 'dart:convert';
 
 class Member {
   String id;
-  String fullName;
-  String email;
-  String password;
-  String gymCode;
+  String name;
+  String? email;
+  String? password;
+  String? gymCode;
   String? phoneNumber;
   String? address;
-  bool isActive;
-  bool isPaid;
+  bool? isActive;
   DateTime? membershipExpiryDate;
   String? trainerId;
-  List<Information>? workout; // New field for workout information
-  List<Information>? diet; // New field for diet information
+  List<Information>? workout;
+  List<Information>? diet;
+  double? weight;
+  double? height;
+  int? age;
+  String? gender;
+  String? role;
+  List<PaymentRecord>? paymentRecords; // New field to track payment records
 
   Member({
     required this.id,
-    required this.fullName,
-    required this.email,
-    required this.password,
-    required this.gymCode,
+    required this.name,
+    this.password,
+    this.gymCode,
+    this.email,
     this.phoneNumber,
     this.address,
     this.isActive = true,
-    this.isPaid = false,
     this.membershipExpiryDate,
     this.trainerId,
     this.workout,
     this.diet,
+    this.weight,
+    this.height,
+    this.age,
+    this.gender,
+    this.role,
+    this.paymentRecords, // Initialize payment records
   });
-
-  factory Member.fromJson(Map<String, dynamic> json) {
-    return Member(
-      id: json['id'],
-      fullName: json['fullName'],
-      email: json['email'],
-      password: json['password'],
-      gymCode: json['gymCode'],
-      phoneNumber: json['phoneNumber'],
-      address: json['address'],
-      isActive: json['isActive'],
-      isPaid: json['isPaid'],
-      membershipExpiryDate: json['membershipExpiryDate'] != null
-          ? DateTime.parse(json['membershipExpiryDate'])
-          : null,
-      trainerId: json['trainerId'],
-      workout: json['workout'] != null
-          ? List<Information>.from(json['workout'].map((x) => Information.fromJson(x)))
-          : null,
-      diet: json['diet'] != null
-          ? List<Information>.from(json['diet'].map((x) => Information.fromJson(x)))
-          : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'fullName': fullName,
-      'email': email,
-      'password': password,
-      'gymCode': gymCode,
-      'phoneNumber': phoneNumber,
-      'address': address,
-      'isActive': isActive,
-      'isPaid': isPaid,
-      'membershipExpiryDate': membershipExpiryDate?.toIso8601String(),
-      'trainerId': trainerId,
-      'workout': workout?.map((info) => info.toJson()).toList(),
-      'diet': diet?.map((info) => info.toJson()).toList(),
-    };
-  }
 
   factory Member.fromMap(Map<String, dynamic> map) {
     return Member(
       id: map['id'],
-      fullName: map['fullName'],
+      name: map['name'],
       email: map['email'],
       password: map['password'],
       gymCode: map['gymCode'],
       phoneNumber: map['phoneNumber'],
       address: map['address'],
       isActive: map['isActive'],
-      isPaid: map['isPaid'],
       membershipExpiryDate: map['membershipExpiryDate'] != null
           ? (map['membershipExpiryDate'] as Timestamp).toDate()
           : null,
       trainerId: map['trainerId'],
       workout: map['workout'] != null
-          ? List<Information>.from(map['workout'].map((x) => Information.fromMap(x)))
+          ? List<Information>.from(
+          map['workout'].map((x) => Information.fromMap(x)))
           : null,
-      diet: map['diet'] != null ? List<Information>.from(map['diet'].map((x) => Information.fromMap(x))) : null,
+      diet: map['diet'] != null
+          ? List<Information>.from(
+          map['diet'].map((x) => Information.fromMap(x)))
+          : null,
+      weight: map['weight'],
+      height: map['height'],
+      age: map['age'],
+      gender: map['gender'],
+      role: map['role'],
+      paymentRecords: map['paymentRecords'] != null
+          ? List<PaymentRecord>.from(
+          map['paymentRecords'].map((x) => PaymentRecord.fromMap(x)))
+          : null, // Initialize payment records from map
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'fullName': fullName,
+      'name': name,
       'email': email,
       'password': password,
       'gymCode': gymCode,
       'phoneNumber': phoneNumber,
       'address': address,
       'isActive': isActive,
-      'isPaid': isPaid,
       'membershipExpiryDate': membershipExpiryDate != null
           ? Timestamp.fromDate(membershipExpiryDate!)
           : null,
       'trainerId': trainerId,
       'workout': workout?.map((info) => info.toMap()).toList(),
       'diet': diet?.map((info) => info.toMap()).toList(),
+      'weight': weight,
+      'height': height,
+      'age': age,
+      'gender': gender,
+      'role': role,
+      'paymentRecords': paymentRecords
+          ?.map((record) => record.toMap())
+          .toList(), // Include payment records in map
     };
-  }
-
-  String toJsonString() {
-    return jsonEncode(toJson());
-  }
-
-  factory Member.fromJsonString(String jsonString) {
-    return Member.fromJson(jsonDecode(jsonString));
-  }
-
-  bool verifyPassword(String inputPassword) {
-    return inputPassword == password;
   }
 }
 
@@ -138,11 +113,11 @@ class Information {
     required this.description,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'heading': heading,
-      'description': description,
-    };
+  factory Information.fromMap(Map<String, dynamic> map) {
+    return Information(
+      heading: map['heading'],
+      description: map['description'],
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -151,19 +126,32 @@ class Information {
       'description': description,
     };
   }
-
-  factory Information.fromJson(Map<String, dynamic> json) {
-    return Information(
-      heading: json['heading'],
-      description: json['description'],
-    );
-  }
-
-  factory Information.fromMap(Map<String, dynamic> map) {
-    return Information(
-      heading: map['heading'],
-      description: map['description'],
-    );
-  }
 }
 
+class PaymentRecord {
+  DateTime expireDate;
+  DateTime startingDate;
+  double amount;
+
+  PaymentRecord({
+    required this.expireDate,
+    required this.amount,
+    required this.startingDate,
+  });
+
+  factory PaymentRecord.fromMap(Map<String, dynamic> map) {
+    return PaymentRecord(
+      expireDate: (map['date'] as Timestamp).toDate(),
+      amount: map['amount'],
+      startingDate: map['startingDate'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'date': Timestamp.fromDate(expireDate),
+      'amount': amount,
+      'startingDate' : startingDate,
+    };
+  }
+}

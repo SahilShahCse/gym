@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gym/models/MemberModel.dart';
 import '../models/TrainerModel.dart';
 
 class TrainerProvider extends ChangeNotifier {
   List<Trainer> _trainers = [];
+  late Trainer _trainer;
 
   List<Trainer> get trainers => _trainers;
+  Trainer get trainer => _trainer;
 
   final CollectionReference _trainersCollection =
   FirebaseFirestore.instance.collection('trainers');
@@ -19,30 +22,6 @@ class TrainerProvider extends ChangeNotifier {
     return null; // Return null if no trainer with the given id is found
   }
 
-  Future<void> addTrainer(Trainer trainer) async {
-    try {
-      // Add a new document to the trainers collection with auto-generated ID
-      DocumentReference newTrainerRef = await _trainersCollection.add(trainer.toMap());
-
-      // Retrieve the auto-generated ID and store it in the trainer object
-      String trainerId = newTrainerRef.id;
-      trainer.id = trainerId;
-
-      // Update the document in Firestore with the trainer object containing the ID
-      await newTrainerRef.set(trainer.toMap());
-
-      // Update the local _trainers list with the newly added trainer
-      _trainers.add(trainer);
-
-      // Notify listeners of the change
-      notifyListeners();
-    } catch (e) {
-      print('Error adding trainer: $e');
-      throw e;
-    }
-  }
-
-  // Method to fetch trainers
   Future<void> fetchTrainersByGymCode(String gymCode) async {
     try {
       // Clear the existing list of trainers
@@ -87,13 +66,36 @@ class TrainerProvider extends ChangeNotifier {
     }
   }
 
-  // Method to update trainer profile
-  Future<void> updateTrainerProfile(Trainer trainer) async {
-    // Logic to update trainer profile in your data source
-    notifyListeners();
+  void updateTrainerMobileNumberPermission(String trainerId, bool canSeeMobileNumbers) {
+    final trainerIndex = _trainers.indexWhere((trainer) => trainer.id == trainerId);
+    if (trainerIndex != -1) {
+      _trainers[trainerIndex].canSeeMobileNumbers = canSeeMobileNumbers;
+      notifyListeners();
+    }
   }
 
-  // Method to update trainer's shift
+  void updateTrainerPaymentStatusPermission(String trainerId, bool canUpdatePaymentStatus) {
+    final trainerIndex = _trainers.indexWhere((trainer) => trainer.id == trainerId);
+    if (trainerIndex != -1) {
+      _trainers[trainerIndex].canUpdatePaymentStatus = canUpdatePaymentStatus;
+      notifyListeners();
+    }
+  }
+
+  Future<void> toggleGymAttendance(String trainerId, bool isInGym) async {
+    try {
+      // Update the gym attendance status in Firestore
+      _trainersCollection.doc(trainerId).update({'isInGym': isInGym});
+
+      // Update the local trainer object
+      trainer.isInGym = isInGym;
+      notifyListeners();
+    } catch (e) {
+      print('Error toggling gym attendance: $e');
+      throw e;
+    }
+  }
+
   Future<void> updateTrainerShift(String trainerId, String shift) async {
     try {
       // Update the shift in Firestore
@@ -111,5 +113,10 @@ class TrainerProvider extends ChangeNotifier {
       print('Error updating trainer shift: $e');
       throw e;
     }
+  }
+
+  void setTrainer(Trainer trainer) {
+    _trainer = trainer;
+    notifyListeners();
   }
 }

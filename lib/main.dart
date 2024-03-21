@@ -1,48 +1,86 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gym/pages/admin/homePage.dart';
-import 'package:gym/pages/trainer/trainer_home_page.dart';
+import 'package:gym/pages/loginPage.dart';
+import 'package:gym/pages/user/client_home_page.dart';
 import 'package:gym/providers/MemberProvider.dart';
 import 'package:gym/providers/OwnerProvider.dart';
 import 'package:gym/providers/TrainerProvider.dart';
 import 'package:provider/provider.dart';
 
-import 'firebase_options.dart';
-import 'models/MemberModel.dart';
-import 'pages/loginPage.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Color(0xffededed), // Change the status bar color to white
-      statusBarIconBrightness: Brightness.dark, // Use dark icons for status bar
-      systemNavigationBarColor: Color(0xffededed), // Change the navigation bar color to white
-      systemNavigationBarIconBrightness: Brightness.dark, // Use dark icons for navigation bar
+      statusBarColor: Color(0xffededed),
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Color(0xffededed),
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MemberProvider()),
-        ChangeNotifierProvider(create: (context) => TrainerProvider()),
         ChangeNotifierProvider(create: (context) => OwnerProvider()),
+        ChangeNotifierProvider(create: (context) => TrainerProvider()),
       ],
-      child: MaterialApp(
-        title: 'Your App Title',
-        theme: ThemeData(
-          // Your app theme configuration
-        ),
-        home: TrainerHomePage(),
-      ),
+      child: MyApp(),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Gym',
+      theme: ThemeData(
+        // Your app theme configuration
+      ),
+      home: SplashScreen(), // Initial screen
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Fetch data or perform initialization tasks here
+
+    // Simulate data loading with Future.delayed
+    Future.delayed(Duration(seconds: 2), () {
+      // Check if the user is signed in
+      // For demonstration purposes, assume the user is not signed in
+      bool isUserSignedIn = false;
+
+      // Navigate based on user authentication state
+      if (isUserSignedIn) {
+        // If user is signed in, navigate to home page
+        // Replace 'ClientHomePage' with your home page widget
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ClientHomePage()),
+        );
+      } else {
+        // If user is not signed in, navigate to login/signup page
+        // Replace 'LoginPage' with your login/signup page widget
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
+    });
+
+    // Display a loading indicator while checking authentication state
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 }

@@ -3,12 +3,58 @@ import 'package:flutter/material.dart';
 import '../models/MemberModel.dart';
 
 class MemberProvider extends ChangeNotifier {
-
   List<Member> _members = [];
+  late Member _member;
 
   List<Member> get members => _members;
+  Member get member => _member;
 
-  final CollectionReference _membersCollection = FirebaseFirestore.instance.collection('members');
+  final CollectionReference _membersCollection =
+  FirebaseFirestore.instance.collection('members');
+
+  Future<void> setMember(Member newMember) async {
+    try {
+      // Add a new document to the members collection with auto-generated ID
+      DocumentReference newMemberRef =
+      await _membersCollection.add(newMember.toMap());
+
+      // Retrieve the auto-generated ID and store it in the newMember object
+      String memberId = newMemberRef.id;
+      newMember.id = memberId;
+
+      // Update the document in Firestore with the newMember object containing the ID
+      await newMemberRef.set(newMember.toMap());
+
+      // Add the newMember to the local _members list
+      _members.add(newMember);
+
+      // Notify listeners of the change
+      notifyListeners();
+    } catch (e) {
+      print('Error setting new member: $e');
+      throw e;
+    }
+  }
+
+  Future<void> updatePaymentRecord(String memberId, PaymentRecord paymentRecord) async {
+    try {
+      // Get the document reference for the member
+      DocumentReference memberRef = _membersCollection.doc(memberId);
+
+      // Add the payment record to the member's paymentRecords array
+      await memberRef.update({
+        'paymentRecords': FieldValue.arrayUnion([paymentRecord.toMap()]),
+      });
+
+      // Optionally, you can update the local data as well if needed
+
+      // Notify listeners of the change
+      notifyListeners();
+    } catch (e) {
+      print('Error updating payment record: $e');
+      throw e;
+    }
+  }
 
   Member? getMemberById(String id) {
     for (Member data in _members) {
@@ -19,9 +65,12 @@ class MemberProvider extends ChangeNotifier {
     return null; // Return null if no member with the given id is found
   }
 
+  Future<void> updateMemberPaymentStatus(String memberId, bool isPaid) async {}
+
   List<Member> getMembersByTrainerId(String trainerId) {
-    print('called');
-    return _members.where((member) => member.trainerId == trainerId).toList();
+    return _members
+        .where((member) => member.trainerId == trainerId)
+        .toList();
   }
 
   Future<void> updateDiet(String memberId, List<Information> diet) async {
@@ -29,7 +78,6 @@ class MemberProvider extends ChangeNotifier {
       await _membersCollection.doc(memberId).update({
         'diet': diet.map((workout) => workout.toMap()).toList(),
       });
-      // Optionally, you can update the local data as well
       _members.forEach((member) {
         if (member.id == memberId) {
           member.diet = diet;
@@ -37,7 +85,7 @@ class MemberProvider extends ChangeNotifier {
       });
       notifyListeners();
     } catch (e) {
-      print('Error updating workouts: $e');
+      print('Error updating diet: $e');
       throw e;
     }
   }
@@ -47,10 +95,9 @@ class MemberProvider extends ChangeNotifier {
       await _membersCollection.doc(memberId).update({
         'workout': workouts.map((workout) => workout.toMap()).toList(),
       });
-      // Optionally, you can update the local data as well
       _members.forEach((member) {
         if (member.id == memberId) {
-          member.workout = workouts; // Assuming you have a field named workouts in your Member model
+          member.workout = workouts;
         }
       });
       notifyListeners();
@@ -60,102 +107,109 @@ class MemberProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addMember(Member member) async {
-    try {
-      // Add a new document to the members collection with auto-generated ID
-      DocumentReference newMemberRef =
-      await _membersCollection.add(member.toMap());
-
-      // Retrieve the auto-generated ID and store it in the member object
-      String memberId = newMemberRef.id;
-      member.id = memberId;
-
-      // Update the document in Firestore with the member object containing the ID
-      await newMemberRef.set(member.toMap());
-
-      // Update the local _members list with the newly added member
-      _members.add(member);
-
-      // Notify listeners of the change
-      notifyListeners();
-    } catch (e) {
-      print('Error adding member: $e');
-      throw e;
-    }
-  }
-
-  // Method to fetch members with a given gym code
   Future<void> fetchMembersByGymCode(String gymCode) async {
     try {
-      // Clear the existing list of members
       _members.clear();
 
-      // Query Firestore to get all members with the given gym code
-      QuerySnapshot querySnapshot = await _membersCollection
-          .where('gymCode', isEqualTo: gymCode)
-          .get();
+      QuerySnapshot querySnapshot =
+      await _membersCollection.where('gymCode', isEqualTo: gymCode).get();
 
-      // Convert the query snapshot to a list of Member objects
       List<Member> members = querySnapshot.docs
           .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-      // Update the local _members list with the fetched members
       _members.clear();
       _members.addAll(members);
 
-      // Notify listeners of the change
       notifyListeners();
 
-      // Listen to real-time updates
       _membersCollection
           .where('gymCode', isEqualTo: gymCode)
           .snapshots()
           .listen((snapshot) {
-        // Convert the query snapshot to a list of Member objects
         List<Member> updatedMembers = snapshot.docs
             .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
             .toList();
 
-        // Update the local _members list with the updated members
         _members.clear();
         _members.addAll(updatedMembers);
 
-        // Notify listeners of the change
         notifyListeners();
       });
     } catch (e) {
       print('Error fetching members: $e');
       throw e;
     }
-
-    print('data from firebase : ${_members.first.workout}');
   }
 
-  // Method to update member profile
   Future<void> updateMemberProfile(Member member) async {
-    // Logic to update member profile in your data source
-    notifyListeners();
-  }
-
-// Method to update member's payment status
-  Future<void> updateMemberPaymentStatus(String memberId, bool isPaid) async {
     try {
-      // Update the payment status in Firestore
-      await _membersCollection.doc(memberId).update({'isPaid': isPaid});
-
-      // Update the payment status locally
-      _members.forEach((member) {
-        if (member.id == memberId) {
-          member.isPaid = isPaid;
-        }
-      });
-
+      await _membersCollection.doc(member.id).update(member.toMap());
+      _members.removeWhere((m) => m.id == member.id);
+      _members.add(member);
       notifyListeners();
     } catch (e) {
-      print('Error updating member payment status: $e');
+      print('Error updating member profile: $e');
       throw e;
     }
   }
 
+  Future<List<Member>> getMembersWithFeesPending() async {
+    try {
+      QuerySnapshot querySnapshot =
+      await _membersCollection.where('feesPaid', isEqualTo: false).get();
+      return querySnapshot.docs
+          .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting members with fees pending: $e');
+      throw e;
+    }
+  }
+
+  Future<List<Member>> getMembersWithFeesPaid() async {
+    try {
+      QuerySnapshot querySnapshot =
+      await _membersCollection.where('feesPaid', isEqualTo: true).get();
+      return querySnapshot.docs
+          .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting members with fees paid: $e');
+      throw e;
+    }
+  }
+
+  Future<List<Member>> getMembersWithMembershipExpired() async {
+    try {
+      QuerySnapshot querySnapshot = await _membersCollection
+          .where('membershipExpiryDate', isLessThan: DateTime.now())
+          .get();
+      return querySnapshot.docs
+          .map((doc) => Member.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting members with membership expired: $e');
+      throw e;
+    }
+  }
+
+  Future<List<PaymentRecord>> getMemberPaymentRecord(String memberId) async {
+    try {
+      DocumentSnapshot doc =
+      await _membersCollection.doc(memberId).get();
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if (data.containsKey('paymentRecords')) {
+        List<dynamic> records = data['paymentRecords'];
+        return records
+            .map((record) => PaymentRecord.fromMap(record))
+            .toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error getting payment records for member: $e');
+      throw e;
+    }
+  }
 }

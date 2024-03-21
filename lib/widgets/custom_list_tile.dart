@@ -21,10 +21,10 @@ class CustomListTile extends StatelessWidget {
     this.toggleColorBackground,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
+
       onTap: onTap,
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,

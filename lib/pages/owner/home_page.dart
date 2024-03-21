@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gym/pages/admin/trainerInfoAdmin/trainers_list.dart';
-import 'package:gym/pages/commonPages/client_page.dart';
+import 'package:gym/pages/owner/Dashboard.dart';
 
-import '../../components/custom_bottom_navigationbar.dart';
-import '../commonPages/fee_reminder_page.dart';
+import '../../widgets/custom_bottom_navigationbar.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -46,10 +44,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               controller: _pageController,
               onPageChanged: _onPageChanged,
               children: <Widget>[
-                ClientPage(),
-                AdminTrainerPage(),
-                FeeReminderPage(),
-                FeeReminderPage(),
+                OwnerDashboard(),
               ],
             ),
           ),

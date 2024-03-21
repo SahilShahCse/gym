@@ -1,32 +1,45 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gym/models/TrainerModel.dart';
 import '../models/MemberModel.dart';
 import '../models/OwnerModel.dart';
 
 class OwnerProvider extends ChangeNotifier {
 
-  Owner _owner = Owner(
-    id: '1',
-    fullName: 'John Doe',
-    email: 'john@example.com',
-    password: 'password1',
-    gymCode: 'Gym3',
-    gymName: 'Fitness First',
-    gymLocation: '123 Main Street',
-  );
-
+  late Owner _owner;
   Owner get owner => _owner;
 
+  final CollectionReference _ownersCollection =
+  FirebaseFirestore.instance.collection('owners');
 
-  // Method to fetch members
-  Future<void> fetchMembers() async {
-    // Logic to fetch members from your data source (e.g., database, API)
-    // Update _members with fetched data
-    notifyListeners();
+  Future<void> setOwner(Owner owner) async {
+      _owner = owner;
+      notifyListeners();
   }
 
-  // Method to update member profile
-  Future<void> updateMemberProfile(Member member) async {
-    // Logic to update member profile in your data source
-    notifyListeners();
+  Future<void> getOwner(String ownerId) async {
+    try {
+      // Fetch owner document from Firestore
+      DocumentSnapshot ownerDoc =
+      await _ownersCollection.doc(ownerId).get();
+
+      if (ownerDoc.exists) {
+        // If owner document exists, create Owner object from data
+        Map<String, dynamic> ownerData = ownerDoc.data() as Map<String, dynamic>;
+        Owner owner = Owner.fromMap(ownerData);
+
+        // Set owner data locally
+        _owner = owner;
+
+        // Notify listeners of the change
+        notifyListeners();
+      } else {
+        throw Exception("Owner not found");
+      }
+    } catch (e) {
+      print('Error getting owner: $e');
+      throw e;
+    }
   }
+
 }
