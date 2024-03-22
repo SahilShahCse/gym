@@ -6,6 +6,7 @@ import 'package:gym/providers/MemberProvider.dart';
 import 'package:gym/providers/OwnerProvider.dart';
 import 'package:gym/providers/TrainerProvider.dart';
 import 'package:gym/widgets/CustomList.dart';
+import 'package:gym/widgets/custom_list_tile.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/TrainerModel.dart';
@@ -23,52 +24,51 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
   @override
   void initState() {
     setData();
+
     super.initState();
   }
 
-  String _selected = 'totalMembers';
+  String _selected = '';
 
   Future<void> setData() async {
     String gymCode =
-    Provider.of<OwnerProvider>(context, listen: false).owner.gymCode!;
+        Provider.of<TrainerProvider>(context, listen: false).trainer.gymCode!;
 
     Provider.of<MemberProvider>(context, listen: false)
         .fetchMembersByGymCode(gymCode);
-    Provider.of<TrainerProvider>(context, listen: false)
-        .fetchTrainersByGymCode(gymCode);
+    Provider.of<TrainerProvider>(context,listen: false).listenToTrainerUpdates();
+
   }
 
   List<dynamic> getList(String selected) {
-
-
     final memberProvider = Provider.of<MemberProvider>(context, listen: false);
     final trainerProvider =
-    Provider.of<TrainerProvider>(context, listen: false);
+        Provider.of<TrainerProvider>(context, listen: false);
 
     switch (selected) {
-      case 'totalMembers':
+      case 'Total Members':
         return memberProvider.members;
-      case 'expiredMember':
+      case 'Expired Member':
         return memberProvider.members
             .where((member) =>
-        member.membershipExpiryDate != null &&
-            member.membershipExpiryDate!.isBefore(DateTime.now()))
+                member.membershipExpiryDate != null &&
+                member.membershipExpiryDate!.isBefore(DateTime.now()))
             .toList();
-      case 'noDiet':
+      case 'No Diet':
         return memberProvider.members
             .where((member) => member.diet == null || member.diet!.isEmpty)
             .toList();
-      case 'noWorkout':
+      case 'No Workout':
         return memberProvider.members
             .where(
                 (member) => member.workout == null || member.workout!.isEmpty)
             .toList();
-      case 'expiringIn5Days':
+      case 'Expiring In 5 Days':
         return memberProvider.members
             .where((member) =>
-        member.membershipExpiryDate != null &&
-            member.membershipExpiryDate!
-                .isBefore(DateTime.now().add(Duration(days: 5))))
+                member.membershipExpiryDate != null &&
+                member.membershipExpiryDate!
+                    .isBefore(DateTime.now().add(Duration(days: 5))))
             .toList();
       default:
         return [];
@@ -77,39 +77,34 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
 
   @override
   Widget build(BuildContext context) {
-
     List data = getList(_selected);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: Text('D A S H B O A R D', style: TextStyle(color: Color(0xff720455))),
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // trainer details
-              Consumer<TrainerProvider>(
-                builder: (context, trainerProvider, _) {
-                  Trainer trainer = trainerProvider.trainer;
-                  return CustomList(
-                    title: const [
-                      'Name',
-                      'Gym Code',
-                      'Contact Number',
-                      'Email',
-                      'Address',
-                    ],
-                    subtitle: [
-                      trainer.name,
-                      trainer.gymCode,
-                      trainer.phoneNumber,
-                      trainer.emailId ?? 'Not Given',
-                      trainer.address ?? 'Not Given',
-                    ],
-                    onTap: [],
-                  );
+              CustomListTile(
+                title: 'Status',
+                subtitle: Provider.of<TrainerProvider>(context, listen: false)
+                            .trainer
+                            .isInGym ??
+                        false
+                    ? 'in Gym'
+                    : 'Not In Gym',
+                showToggle: true,
+                toggleValue:  Provider.of<TrainerProvider>(context, listen: false).trainer.isInGym??false,
+                onToggle: (value) {
+                    Provider.of<TrainerProvider>(context, listen: false)
+                        .toggleGymAttendance();
+                    setState(() {});
                 },
               ),
               SizedBox(height: 16),
@@ -129,6 +124,7 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
                       'No Diet',
                       'No Workout',
                       'Expiring(5 days)',
+
                     ],
                     subtitle: [
                       '${members.length}',
@@ -138,34 +134,34 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
                       '${members.where((member) => member.membershipExpiryDate != null && member.membershipExpiryDate!.isBefore(DateTime.now().add(Duration(days: 5)))).length}',
                     ],
                     onTap: [
-                          () {
-                        _selected = 'totalMembers';
+                      () {
+                        _selected = 'Total Members';
                         setState(
-                              () {},
+                          () {},
                         );
                       },
-                          () {
-                        _selected = 'expiredMember';
+                      () {
+                        _selected = 'Expired Member';
                         setState(
-                              () {},
+                          () {},
                         );
                       },
-                          () {
-                        _selected = 'noDiet';
+                      () {
+                        _selected = 'No Diet';
                         setState(
-                              () {},
+                          () {},
                         );
                       },
-                          () {
-                        _selected = 'noWorkout';
+                      () {
+                        _selected = 'No Workout';
                         setState(
-                              () {},
+                          () {},
                         );
                       },
-                          () {
-                        _selected = 'expiringIn5Days';
+                      () {
+                        _selected = 'Expiring In 5 Days';
                         setState(
-                              () {},
+                          () {},
                         );
                       },
                     ], // Define onTap callback if needed
@@ -179,8 +175,36 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
                 color: Colors.grey,
               ),
               SizedBox(height: 16),
+              SizedBox(height: 16),
+
               (data.isNotEmpty)
-                  ? CustomMemberList(members: data.cast<Member>())
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Text(
+                        '$_selected :',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 17,
+                            color: Color(0xff910A67)),
+                      ),
+                    )
+                  : (_selected == '')
+                      ? SizedBox()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Text(
+                            'No Data',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 17,
+                                color: Color(0xff910A67)),
+                          ),
+                        ),
+
+              SizedBox(height: 16),
+
+              (data.isNotEmpty)
+                  ? CustomMemberList(members: data.cast<Member>() , owner: false,)
                   : SizedBox(),
             ],
           ),

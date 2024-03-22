@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gym/models/MemberModel.dart';
@@ -6,6 +8,8 @@ import '../models/TrainerModel.dart';
 class TrainerProvider extends ChangeNotifier {
   List<Trainer> _trainers = [];
   late Trainer _trainer;
+  StreamController<Trainer?> _trainerStreamController = StreamController<Trainer?>.broadcast();
+
 
   List<Trainer> get trainers => _trainers;
   Trainer get trainer => _trainer;
@@ -20,6 +24,22 @@ class TrainerProvider extends ChangeNotifier {
       }
     }
     return null; // Return null if no trainer with the given id is found
+  }
+
+  void listenToTrainerUpdates() {
+    try {
+      _trainersCollection.doc(_trainer.id).snapshots().listen((snapshot) {
+        if (snapshot.exists && snapshot.data() != null) {
+          Trainer updatedTrainer =
+          Trainer.fromMap(snapshot.data() as Map<String, dynamic>);
+          _trainer = updatedTrainer;
+          _trainerStreamController.add(updatedTrainer); // Push updated trainer to the stream
+          notifyListeners();
+        }
+      });
+    } catch (e) {
+      print('Error listening to trainer updates: $e');
+    }
   }
 
   Future<void> fetchTrainersByGymCode(String gymCode) async {
@@ -101,14 +121,13 @@ class TrainerProvider extends ChangeNotifier {
     }
   }
 
-
-  Future<void> toggleGymAttendance(String trainerId, bool isInGym) async {
+  Future<void> toggleGymAttendance() async {
     try {
       // Update the gym attendance status in Firestore
-      _trainersCollection.doc(trainerId).update({'isInGym': isInGym});
+      _trainersCollection.doc(trainer.id).update({'isInGym': trainer.isInGym??false ? false : true});
 
       // Update the local trainer object
-      trainer.isInGym = isInGym;
+      trainer.isInGym = trainer.isInGym??false ? false : true;
       notifyListeners();
     } catch (e) {
       print('Error toggling gym attendance: $e');

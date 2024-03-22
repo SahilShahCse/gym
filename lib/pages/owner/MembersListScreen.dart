@@ -19,9 +19,9 @@ class _MembersListScreenState extends State<MembersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:  AppBar(
+        title: Text('M E M B E R S', style: TextStyle(color: Color(0xff720455))),
         scrolledUnderElevation: 0,
-        title: Text('Members'),
       ),
       body: SafeArea(
         top: false,
@@ -30,11 +30,11 @@ class _MembersListScreenState extends State<MembersListScreen> {
             builder: (context, memberProvider, _) {
               List<Member> members = memberProvider.members;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: CustomMemberList(
-                  members: members,
-                ),
+              return CustomMemberList(
+                owner: true,
+                members: members,
+                showPaymentInfo: true,
+
               );
             },
           ),

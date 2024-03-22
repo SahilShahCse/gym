@@ -16,9 +16,9 @@ class _TrainersListScreenState extends State<TrainersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:  AppBar(
+        title: Text('T R A I N E R S', style: TextStyle(color: Color(0xff720455))),
         scrolledUnderElevation: 0,
-        title: Text('Trainers'),
       ),
       body: SafeArea(
         top: false,
@@ -27,11 +27,9 @@ class _TrainersListScreenState extends State<TrainersListScreen> {
             builder: (context, trainerProvider, _) {
               List<Trainer> trainers = trainerProvider.trainers;
           
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal:15.0),
-                child: CustomTrainersList(
-                  trainers: trainers,
-                ),
+              return CustomTrainersList(
+                showOnlineStatus: true,
+                trainers: trainers,
               );
             },
           ),

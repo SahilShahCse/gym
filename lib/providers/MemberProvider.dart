@@ -45,10 +45,7 @@ class MemberProvider extends ChangeNotifier {
       await memberRef.update({
         'paymentRecords': FieldValue.arrayUnion([paymentRecord.toMap()]),
       });
-
-      // Optionally, you can update the local data as well if needed
-
-      // Notify listeners of the change
+      print('Payment Record Updated');
       notifyListeners();
     } catch (e) {
       print('Error updating payment record: $e');
@@ -65,8 +62,19 @@ class MemberProvider extends ChangeNotifier {
     return null; // Return null if no member with the given id is found
   }
 
-  Future<void> updateMemberPaymentStatus(String memberId, bool isPaid) async {}
-
+  Future<void> updateMemberPaymentStatus(
+      String memberId, PaymentRecord paymentDetail) async {
+    try {
+      await _membersCollection
+          .doc(memberId)
+          .collection('paymentRecords')
+          .doc()
+          .set(paymentDetail.toMap());
+    } catch (e) {
+      print('Error updating member payment status: $e');
+      throw e;
+    }
+  }
   List<Member> getMembersByTrainerId(String trainerId) {
     return _members
         .where((member) => member.trainerId == trainerId)

@@ -18,8 +18,9 @@ class _TrainerDetailPageState extends State<TrainerDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Trainer Detail'),
+      appBar:  AppBar(
+        title: Text('D E T A I L S', style: TextStyle(color: Color(0xff720455))),
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Padding(

@@ -12,24 +12,21 @@ class ProfileScreen extends StatelessWidget {
     final owner = Provider.of<OwnerProvider>(context).owner;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
+      appBar:  AppBar(
+        title: Text('P R O F I L E', style: TextStyle(color: Color(0xff720455))),
+        scrolledUnderElevation: 0,
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: TextButton(
-              onPressed: () {
-                _showLogoutConfirmation(context);
-              },
-              child: Text('Logout'),
-            ),
+          TextButton(
+            onPressed: () {
+              _showLogoutConfirmation(context);
+            },
+            child: Icon(Icons.logout_rounded , color: Color(0xff720455),),
           ),
         ],
       ),
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 20),
           children: [
             CustomListTile(
               title: 'Name',
@@ -73,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirm ?'),
+        title: Text('Confirm'),
         content: Text('Are you sure you want to logout?'),
         actions: [
           TextButton(

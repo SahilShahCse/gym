@@ -4,22 +4,23 @@ import 'package:gym/providers/TrainerProvider.dart';
 import 'package:gym/widgets/CustomList.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/TrainerModel.dart';
+import '../models/TrainerModel.dart';
 
-class MemberDetailPage extends StatefulWidget {
+class MemberDetailScreen extends StatefulWidget {
   final Member member;
-  MemberDetailPage({super.key, required this.member});
+  MemberDetailScreen({super.key, required this.member});
 
   @override
-  State<MemberDetailPage> createState() => _MemberDetailPageState();
+  State<MemberDetailScreen> createState() => _MemberDetailScreenState();
 }
 
-class _MemberDetailPageState extends State<MemberDetailPage> {
+class _MemberDetailScreenState extends State<MemberDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Member Detail'),
+      appBar:  AppBar(
+        title: Text('D E T A I L S', style: TextStyle(color: Color(0xff720455))),
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Padding(

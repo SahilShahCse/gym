@@ -30,7 +30,7 @@ class _PersonalTrainingDetailScreenState extends State<PersonalTrainingDetailScr
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: Text('Personal Training'),
+        title: Text('T R A I N I N G', style: TextStyle(color: Color(0xff720455))),
       ),
       body: SafeArea(
         top: false,
@@ -40,6 +40,7 @@ class _PersonalTrainingDetailScreenState extends State<PersonalTrainingDetailScr
               List<Member> members = memberProvider.members.where((element) => element.trainerId == Provider.of<TrainerProvider>(context , listen:  false).trainer.id).toList();
               return CustomMemberList(
                 members: members,
+                owner: false,
               );
             },
           ),
